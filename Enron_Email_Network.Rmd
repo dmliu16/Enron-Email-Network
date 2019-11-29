@@ -5,24 +5,78 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(knitr)
+library(igraphdata)
+library(igraph)
+library(network)
+
+data(enron)
 ```
 
-## R Markdown
+```{r}
+##
+# preprocess the role for the dataset aka preprocess the nodes
+##
+enron <- enron - V(enron)[V(enron)$Note == "NA"]
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+process_position <- function(p){
+  if(grepl("CEO", p)){
+    return("CEO")
+  }
+  if(grepl("Director", p)){
+    return("Director")
+  }
+  if(grepl("Vice President", p)){
+    return("Vice President")
+  }
+  if(grepl("President", p)){
+    return("President")
+  }
+  if(grepl("Trader", p)){
+    return("Trader")
+  }
+  if(grepl("Director", p)){
+    return("Director")
+  }
+  if(grepl("Lawyer", p)){
+    return("Lawyer")
+  }
+  if(grepl("Manager", p)){
+    return("Manager")
+  }
+  if(grepl("Employee", p)){
+    return("Employee")
+  }
+  return("Other")
+}
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+V(enron)$role <- sapply(V(enron)$Note, process_position)
 ```
 
-## Including Plots
+```{r}
+##
+# preprocess the edges of the dataset to only keep relevant data about 
+# the enron scandel 
+##
 
-You can also embed plots, for example:
+# 16 indicates the downfall of the company
+enron <- enron - E(enron)[E(enron)$LDC_topic > 16 | E(enron)$LDC_topic < 16]
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# construct an adjacency matrix
+enron.adj = as_adjacency_matrix(enron)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+degree(enron)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
