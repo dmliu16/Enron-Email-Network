@@ -36,9 +36,6 @@ process_position <- function(p){
   if(grepl("Trader", p)){
     return("Trader")
   }
-  if(grepl("Director", p)){
-    return("Director")
-  }
   if(grepl("Lawyer", p)){
     return("Lawyer")
   }
@@ -63,16 +60,59 @@ V(enron)$role <- sapply(V(enron)$Note, process_position)
 # 16 indicates the downfall of the company
 enron <- enron - E(enron)[E(enron)$LDC_topic > 16 | E(enron)$LDC_topic < 16]
 
+##
+# Preprocess the nodes to assign level to each of node
+##
+process_level <- function(p){
+  if(grepl("CEO", p)){
+    return(5)
+  }
+  if(grepl("Vice President", p)){
+    return(3)
+  }
+  if(grepl("President", p)){
+    return(4)
+  }
+  if(grepl("Trader", p)){
+    return(1)
+  }
+  if(grepl("Director", p)){
+    return(2)
+  }
+  if(grepl("Lawyer", p)){
+    return(1)
+  }
+  if(grepl("Manager", p)){
+    return(1)
+  }
+  if(grepl("Employee", p)){
+    return(0)
+  }
+  return(0)
+}
+V(enron)$level <- sapply(V(enron)$role, process_level)
+```
+
+```{r}
 # construct an adjacency matrix
-enron.adj = as_adjacency_matrix(enron)
+enron.adj = as.matrix(as_adjacency_matrix(enron))
+
+# get the indegree and outdegree of each node
+# or the number of emails send out and number of emails receive
+in.deg = colSums(enron.adj)
+out.deg = rowSums(enron.adj)
+
+cor(out.deg, V(enron)$level)
+cor(in.deg, V(enron)$level)
 ```
+Base on the positive correlations between the level of the employees and both out degree and in degree, we can tell that higher level emoloyees send and receive more emails. The stronger correlation betweein in degree and level indicates that they a more significant amount of emails.
 
 ```{r}
-degree(enron)
-```
+# outdegree and year
+plot(V(enron)$level, out.deg, main="out-degree vs level in firm", pch=20)
 
-```{r}
-
+# indegree and year
+plot(V(enron)$level, in.deg, main="in-degree vs level in firm", pch=20)
 ```
 
 ```{r}
