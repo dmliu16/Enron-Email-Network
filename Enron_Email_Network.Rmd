@@ -110,9 +110,11 @@ Base on the positive correlations between the level of the employees and both ou
 ```{r}
 # outdegree and year
 plot(V(enron)$level, out.deg, main="out-degree vs level in firm", pch=20)
+abline(lm(out.deg ~ V(enron)$level), col="red")
 
 # indegree and year
 plot(V(enron)$level, in.deg, main="in-degree vs level in firm", pch=20)
+abline(lm(in.deg ~ V(enron)$level), col="red")
 ```
 
 ```{r}
