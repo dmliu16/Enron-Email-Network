@@ -58,8 +58,8 @@ V(enron)$role <- sapply(V(enron)$Note, process_position)
 ##
 
 # 16 indicates the downfall of the company
-enron <- enron - E(enron)[E(enron)$LDC_topic > 16 | E(enron)$LDC_topic < 16]
-
+enron <- enron - E(enron)[E(enron)$LDC_topic != 16 & E(enron)$LDC_topic != 4]
+#enron <- enron - E(enron)[E(enron)$LDC_topic > 8 | E(enron)$LDC_topic < 1]
 ##
 # Preprocess the nodes to assign level to each of node
 ##
@@ -91,9 +91,11 @@ process_level <- function(p){
   return(0)
 }
 V(enron)$level <- sapply(V(enron)$role, process_level)
-```
 
-```{r}
+# assign each employee a binary status as either a manager or not
+V(enron)$manager <- !(V(enron)$role %in% c("Employee", "Trader", "Other"))
+V(enron)$manager[49] <- TRUE # noticed an error with not assigning Enron individual Jeff Dasovich (a director with the highest degree in the network) as a manager rather than an employee in the dataset
+
 # construct an adjacency matrix
 enron.adj = as.matrix(as_adjacency_matrix(enron))
 
@@ -101,7 +103,34 @@ enron.adj = as.matrix(as_adjacency_matrix(enron))
 # or the number of emails send out and number of emails receive
 in.deg = colSums(enron.adj)
 out.deg = rowSums(enron.adj)
+```
 
+## EDA
+
+# Basic Descriptives
+```{r}
+
+```
+
+# Descriptives Related to Research Question
+```{r}
+in.deg.man = in.deg[V(enron)$manager]
+in.deg.emp = in.deg[!V(enron)$manager]
+out.deg.man = out.deg[V(enron)$manager]
+out.deg.emp = out.deg[!V(enron)$manager]
+
+# average indegree for manager
+mean(in.deg.man)
+# average indegree for employee
+mean(in.deg.emp)
+
+# average indegree for manager
+mean(out.deg.man)
+# average indegree for employee
+mean(out.deg.emp)
+```
+
+```{r}
 cor(out.deg, V(enron)$level)
 cor(in.deg, V(enron)$level)
 ```
