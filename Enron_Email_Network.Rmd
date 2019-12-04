@@ -10,6 +10,10 @@ library(knitr)
 library(igraphdata)
 library(igraph)
 library(network)
+library(qgraph)
+library(dyads)
+library(network)
+library(intergraph)
 
 data(enron)
 ```
@@ -109,7 +113,22 @@ out.deg = rowSums(enron.adj)
 
 # Basic Descriptives
 ```{r}
+# number of nodes
+n = length(V(enron))
+n
 
+# number of directed edges
+length(E(enron))
+
+# outdegree centrality
+out.deg = centrality(enron, weighted = TRUE)$OutDegree
+out.cent = sum(max(out.deg) - out.deg)/((n-1)*(n-2))
+out.cent
+
+# indegree centrality
+in.deg = centrality(enron, weighted = TRUE)$InDegree
+in.cent = sum(max(in.deg) - in.deg)/((n-1)*(n-2))
+in.cent
 ```
 
 # Descriptives Related to Research Question
